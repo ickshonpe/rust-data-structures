@@ -68,7 +68,19 @@ impl<T> List<T> {
         loop {
             match { cursor } {
                 &mut Some(ref mut node) => cursor = &mut node.next,
-                last => return last
+                end_of_list => return end_of_list
+            }
+        }
+    }
+
+    fn back_tmp(&mut self) -> &mut Link<T> {
+        let mut cursor = &mut self.head;
+        loop {
+            let tmp = cursor;
+            if let Some(ref mut node) = *tmp {
+                cursor = &mut node.next;
+            } else {
+                return tmp;
             }
         }
     }
@@ -78,9 +90,9 @@ impl<T> List<T> {
         loop {
             match { cursor } {
                 &mut Some(ref mut node) => cursor = &mut node.next,
-                last => {
-                    *last = Some(Box::new(Node { item, next: None }));
-                    return;
+                end_of_list => {
+                    *end_of_list = Some(Box::new(Node { item, next: None }));
+                    break;
                 }
             }
         }
@@ -102,12 +114,13 @@ impl<T> List<T> {
 }
 
 impl<T> Drop for List<T> {
-    fn drop(&mut self) {
-        let mut cur_link = mem::replace(&mut self.head, None);
-        while let Some(mut node) = cur_link {
-            cur_link = mem::replace(&mut node.next, None);
+        fn drop(&mut self) {
+            let mut cursor = self.head.take();
+            while let Some(mut node) = cursor {
+                cursor = node.next.take();
+            }
         }
-    }
+
 }
 
 pub struct ListIntoIter<T>(List<T>);
