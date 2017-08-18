@@ -1,12 +1,12 @@
-
+mod merge_sort;
+mod tricks;
 mod list;
+mod quick_sort;
+
 use list::*;
 
 
 fn main() {
-    let mut list = List::new();
-    for i in 0..100_000_000 {
-        list.push(i);
-    }
-    println!("{}", list.len());
+    quick_sort::test_2();
+
 }

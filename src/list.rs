@@ -1,4 +1,5 @@
 use std::mem;
+use tricks::id;
 
 type Link<T> = Option<Box<Node<T>>>;
 
@@ -35,7 +36,7 @@ impl<T> List<T> {
 
     pub fn peek(&self) -> Option<&T> {
         if let Some(ref node) = self.head {
-            return Some(&node.item)
+            return Some(&node.item);
         }
         None
     }
@@ -56,7 +57,7 @@ impl<T> List<T> {
     }
 
     pub fn pop(&mut self) -> Option<T> {
-        self.head.take().map( | boxed_node | {
+        self.head.take().map(|boxed_node| {
             let node = *boxed_node;
             self.head = node.next;
             node.item
@@ -67,6 +68,16 @@ impl<T> List<T> {
         let mut cursor = &mut self.head;
         loop {
             match { cursor } {
+                &mut Some(ref mut node) => cursor = &mut node.next,
+                end_of_list => return end_of_list
+            }
+        }
+    }
+
+    fn back_id(&mut self) -> &mut Link<T> {
+        let mut cursor = &mut self.head;
+        loop {
+            match id(cursor) {
                 &mut Some(ref mut node) => cursor = &mut node.next,
                 end_of_list => return end_of_list
             }
@@ -114,13 +125,12 @@ impl<T> List<T> {
 }
 
 impl<T> Drop for List<T> {
-        fn drop(&mut self) {
-            let mut cursor = self.head.take();
-            while let Some(mut node) = cursor {
-                cursor = node.next.take();
-            }
+    fn drop(&mut self) {
+        let mut cursor = self.head.take();
+        while let Some(mut node) = cursor {
+            cursor = node.next.take();
         }
-
+    }
 }
 
 pub struct ListIntoIter<T>(List<T>);
@@ -171,10 +181,10 @@ impl<'a, T> Iterator for ListIter<'a, T> {
 }
 
 pub struct ListIterMut<'a, T: 'a> {
-   cursor: Option<&'a mut Node<T>>
+    cursor: Option<&'a mut Node<T>>
 }
 
-impl <'a, T> IntoIterator for &'a mut List<T> {
+impl<'a, T> IntoIterator for &'a mut List<T> {
     type Item = &'a mut T;
     type IntoIter = ListIterMut<'a, T>;
 
@@ -195,7 +205,7 @@ impl<'a, T> Iterator for ListIterMut<'a, T> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.cursor.take().map(|node| {
-            self.cursor = node.next.as_mut().map(|node| &mut **node );
+            self.cursor = node.next.as_mut().map(|node| &mut **node);
             &mut node.item
         })
     }
@@ -233,7 +243,7 @@ fn test_2() {
     }
     for i in (2..reps + 1).rev() {
         let n = list.pop().unwrap();
-         assert!(i == n);
+        assert!(i == n);
     }
 }
 
