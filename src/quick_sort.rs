@@ -1,3 +1,5 @@
+// algorithm taken from the quicksort wikipedia entry
+// pivots on the last element of the array
 
 pub fn quick_sort<T: PartialOrd>(data: &mut [T]) {
     fn r<T: PartialOrd>(data: &mut [T], start: usize, end: usize) {
@@ -30,7 +32,8 @@ fn partition<T: PartialOrd>(data: &mut [T], start: usize, end: usize) -> usize {
 }
 
 pub fn example() {
-    let mut ns = [9, 8, 7, 6, 4, 5, 3, 2, 1];
+    println!("Quick Sort");
+    let mut ns = [9, 8, 7, 6, 4, 5, 3, 2, 1, 0];
     print!("input ->\t");
     println!("{:?}", ns);
     quick_sort(&mut ns);
